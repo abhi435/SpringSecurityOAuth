@@ -12,6 +12,7 @@
 		<spring-security.version>3.2.3.RELEASE</spring-security.version>
 		<spring-security.oauth.version>1.0.0.RELEASE</spring-security.oauth.version>
 		<gson.version>2.2.2</gson.version>
+		<jackson.version>1.9.10</jackson.version>
 	</properties>
 	<dependencies>
 
@@ -55,16 +56,10 @@
 			<artifactId>spring-security-oauth2</artifactId>
 			<version>${spring-security.oauth.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>${gson.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.10</version>
+			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-httpclient</groupId>

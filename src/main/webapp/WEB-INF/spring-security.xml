@@ -70,7 +70,6 @@
 		<authentication-provider user-service-ref="clientDetailsUserService" />
 	</authentication-manager>
 
-
 	<!-- This is simple authentication manager, with a hard-coded username/password 
 		combination. We can replace this with a user defined service to fetch user 
 		credentials from DB instead -->
@@ -132,15 +131,9 @@
 	<!-- OAuth clients allowed to access the protected resources, can be something 
 		like facebook, google if we are sharing any resource with them -->
 	<oauth:client-details-service id="clientDetails">
-		<!-- clients -->
-		<!-- <oauth:client client-id="facebookApp" authorized-grant-types="authorization_code,client_credentials" 
-			authorities="ROLE_APP" scope="read,write,trust" secret="secret" resource-ids="demo" 
-			/> -->
-
 		<oauth:client client-id="fbApp"
-			authorized-grant-types="password,authorization_code,refresh_token,implicit"
+			authorized-grant-types="password,refresh_token"
 			secret="fbApp" authorities="ROLE_APP" resource-ids="adminProfile" />
-
 	</oauth:client-details-service>
 
 	<sec:global-method-security
