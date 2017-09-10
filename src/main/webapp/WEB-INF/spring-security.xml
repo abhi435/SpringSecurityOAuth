@@ -9,40 +9,40 @@
   http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd  
   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd ">
 
-	<!-- This is default url to get a token from OAuth -->
+	<!-- Default url to get a token from OAuth -->
 	<http pattern="/oauth/token" create-session="stateless"
 		authentication-manager-ref="clientAuthenticationManager"
 		xmlns="http://www.springframework.org/schema/security">
 		<intercept-url pattern="/oauth/token" access="IS_AUTHENTICATED_FULLY" />
 		<anonymous enabled="false" />
 		<http-basic entry-point-ref="clientAuthenticationEntryPoint" />
-		<!-- include this only if you need to authenticate clients via request 
-			parameters -->
 		<custom-filter ref="clientCredentialsTokenEndpointFilter"
 			after="BASIC_AUTH_FILTER" />
 		<access-denied-handler ref="oauthAccessDeniedHandler" />
 	</http>
 
-	<!-- This is where we tells spring security what URL should be protected 
-		and what roles have access to them -->
+	<!-- URLs should be protected and what roles have access to them -->
+	<!-- Can define more patterns based on the protected resources hosted on 
+		the server -->
 	<http pattern="/api/**" create-session="never"
 		entry-point-ref="oauthAuthenticationEntryPoint"
 		access-decision-manager-ref="accessDecisionManager"
 		xmlns="http://www.springframework.org/schema/security">
 		<anonymous enabled="false" />
 		<intercept-url pattern="/api/**" access="ROLE_APP" />
+		<!-- Protect oauth clients with resource ids -->
 		<custom-filter ref="resourceServerFilter" before="PRE_AUTH_FILTER" />
 		<access-denied-handler ref="oauthAccessDeniedHandler" />
 	</http>
 
 	<bean id="oauthAuthenticationEntryPoint"
 		class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint">
-		<property name="realmName" value="test" />
+		<property name="realmName" value="demo/client" />
 	</bean>
 
 	<bean id="clientAuthenticationEntryPoint"
 		class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint">
-		<property name="realmName" value="test/client" />
+		<property name="realmName" value="demo/client" />
 		<property name="typeName" value="Basic" />
 	</bean>
 
@@ -54,7 +54,8 @@
 		<property name="authenticationManager" ref="clientAuthenticationManager" />
 	</bean>
 
-	<bean id="accessDecisionManager" class="org.springframework.security.access.vote.UnanimousBased" xmlns="http://www.springframework.org/schema/beans">
+	<bean id="accessDecisionManager" class="org.springframework.security.access.vote.UnanimousBased"
+		xmlns="http://www.springframework.org/schema/beans">
 		<constructor-arg>
 			<list>
 				<bean class="org.springframework.security.oauth2.provider.vote.ScopeVoter" />
@@ -69,10 +70,9 @@
 		<authentication-provider user-service-ref="clientDetailsUserService" />
 	</authentication-manager>
 
-
-	<!-- This is simple authentication manager, with a hardcoded user/password 
-		combination. We can replace this with a user defined service to get few users 
-		credentials from DB -->
+	<!-- This is simple authentication manager, with a hard-coded username/password 
+		combination. We can replace this with a user defined service to fetch user 
+		credentials from DB instead -->
 	<authentication-manager alias="authenticationManager"
 		xmlns="http://www.springframework.org/schema/security">
 		<authentication-provider>
@@ -87,11 +87,15 @@
 		<constructor-arg ref="clientDetails" />
 	</bean>
 
-
-	<!-- This defined token store, we have used inmemory tokenstore for now 
-		but this can be changed to a user defined one -->
+	<!-- This defines the token store. We have currently used in-memory token 
+		store but we can instead use a user defined one -->
 	<bean id="tokenStore"
 		class="org.springframework.security.oauth2.provider.token.InMemoryTokenStore" />
+	<!-- If need to store tokens in DB 
+	<bean id="tokenStore"
+		class="org.springframework.security.oauth2.provider.token.store.JdbcTokenStore">
+		<constructor-arg ref="jdbcTemplate" />
+	</bean> -->
 
 	<!-- This is where we defined token based configurations, token validity 
 		and other things -->
@@ -108,6 +112,8 @@
 		<property name="tokenServices" ref="tokenServices" />
 	</bean>
 
+	<!-- The server issuing access tokens to the client after successfully authenticating 
+		the resource owner and obtaining authorization -->
 	<oauth:authorization-server
 		client-details-service-ref="clientDetails" token-services-ref="tokenServices"
 		user-approval-handler-ref="userApprovalHandler">
@@ -118,23 +124,20 @@
 		<oauth:password />
 	</oauth:authorization-server>
 
+	<!-- Define protected resources hosted by the resource server -->
 	<oauth:resource-server id="resourceServerFilter"
-		resource-id="test" token-services-ref="tokenServices" />
+		resource-id="adminProfile" token-services-ref="tokenServices" />
 
+	<!-- OAuth clients allowed to access the protected resources, can be something 
+		like facebook, google if we are sharing any resource with them -->
 	<oauth:client-details-service id="clientDetails">
-		<!-- client -->
-		<oauth:client client-id="restapp"
-			authorized-grant-types="authorization_code,client_credentials"
-			authorities="ROLE_APP" scope="read,write,trust" secret="secret" />
-
-		<oauth:client client-id="restapp"
-			authorized-grant-types="password,authorization_code,refresh_token,implicit"
-			secret="restapp" authorities="ROLE_APP" />
-
+		<oauth:client client-id="fbApp"
+			authorized-grant-types="password,refresh_token"
+			secret="fbApp" authorities="ROLE_APP" resource-ids="adminProfile" />
 	</oauth:client-details-service>
 
-	<sec:global-method-security pre-post-annotations="enabled"
-		proxy-target-class="true">
+	<sec:global-method-security
+		pre-post-annotations="enabled" proxy-target-class="true">
 		<!--you could also wire in the expression handler up at the layer of the 
 			http filters. See https://jira.springsource.org/browse/SEC-1452 -->
 		<sec:expression-handler ref="oauthExpressionHandler" />

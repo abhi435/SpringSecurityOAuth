@@ -21,7 +21,7 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
  
-    <!-- Loads Spring Security config file -->
+    <!-- Loads context files -->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
@@ -33,8 +33,7 @@
 	<!-- Spring Security -->
 	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
-		<filter-class>org.springframework.web.filter.DelegatingFilterProxy
-		</filter-class>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 	</filter>
  
 	<filter-mapping>
