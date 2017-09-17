@@ -1,6 +1,6 @@
 # SpringSecurityOAuth
 
-http://localhost:8080/SpringSecurityOAuth/oauth/token?grant_type=password&client_id=restapp&client_secret=restapp&username=admin&password=123
+http://localhost:8080/SpringSecurityOAuth/oauth/token?grant_type=password&client_id=fbApp&client_secret=fbApp&username=admin&password=123
 
 ## Output:
 
